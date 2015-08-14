@@ -1,0 +1,25 @@
+# Copyright 2015 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: [master]
+  service_y:
+      proto   : http
+      hostname: www.service_y-prod.com
+      port    : 8080
+      path    : /bar/baz
+      timeout : 2000
+
+      modules:
+          generic: "no"
+
+- settings: [environment: dev]
+  service_y:
+      hostname: www.service_y.com
+      port    : 80
+      path    : /bar/spam
+      timeout : 3000
+
+- settings: [bucket: BUCKET_001]
+  service_y:
+      modules:
+          generic: "yes"

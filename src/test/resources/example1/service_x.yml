@@ -1,0 +1,32 @@
+# Copyright 2015 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: [master]
+  service_x:
+      api_config:
+          endpoint : www.example-prod.com
+          proto    : http
+          port     : 80
+          path     : /foo/bar
+          timeout  : 5000
+
+          params:
+              debug      : [query, debug]
+              user_query : [spam, eggs]
+
+- settings: [environment: dev]
+  service_x:
+      api_config:
+          endpoint : www.example-dev.com
+          timeout  : 20000
+
+- settings: [bucket: BUCKET_006]
+  service_x:
+      api_config:
+          endpoint : www.example-bucket_006.com
+
+
+- settings: [bucket: BUCKET_006, environment: dev]
+  service_x:
+      api_config:
+          endpoint : www.example-bucket_006-dev.com

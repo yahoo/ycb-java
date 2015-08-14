@@ -1,0 +1,20 @@
+# Copyright 2015 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: [master]
+  routes:
+
+      save_info:
+          method      : POST
+          controller  : SaveInfo
+          path        : /api/v1/save
+
+
+- settings: [network: internal]
+  routes:
+
+      main_route:
+          method      : GET
+          controller  : MainController
+          path        : /api/v1/main
+

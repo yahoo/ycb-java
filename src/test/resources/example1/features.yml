@@ -1,0 +1,26 @@
+# Copyright 2015 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: [master]
+  feature:
+      functionality_a : 10
+      functionality_b : 10
+      functionality_c : 10
+      functionality_d : 10
+      functionality_e : 10
+      functionality_f : 20
+
+- settings: [network: internal]
+  feature:
+      functionality_a : 20
+
+- settings: [environment: dev]
+  feature:
+      functionality_b : 20
+      functionality_c : 20
+      functionality_e : 20
+
+- settings: [environment: demo]
+  feature:
+      functionality_b : 20
+      functionality_c : 20

@@ -1,0 +1,15 @@
+# Copyright 2015 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: [master]
+  crumb:
+      enabled : true
+      alpha   : 0.83123
+      limit   : 58741503419348
+
+- settings: [user_type: premium]
+  crumb:
+      params:
+        x: 10
+        y: 20
+        z: 40
