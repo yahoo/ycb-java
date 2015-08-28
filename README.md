@@ -7,6 +7,12 @@ languages, environments, etc.
 
 This is a Java port of the [Javascript YCB library](https://github.com/yahoo/ycb).
 
+## Installation
+
+This projects uses [Maven](http://maven.apache.org/). One can just clone this
+repository and run `mvn install` (to install in the local Maven repository),
+or `mvn package` (to build the jar library in the target folder).
+
 ## Overview
 
 YCB allows applications to specify configurations that change in response to
@@ -131,8 +137,46 @@ feature_x:
     constant_alpha: 0.99
 ```
 
-This covers briefly the capabilities of YCB. The tests are most likely the best
-place to get to know the API.
+## API Usage
+
+Using YCB involves four steps:
+
+ 1. Specifying a configuration Loader.
+ 2. Loading the (unprojected) configuration into a `Configuration` instance (optionally with a base context).
+ 3. Projecting a context to get the final configuration.
+ 4. Get values from configuration entries.
+
+Tipically, steps 1 and 2 are executed only once in an application, and step 3 can be executed one or more times
+(_i.e._ in a context of a HTTP request), and step 4 is certainly used several times to actually get the values.
+
+Currently the only Loader implemented is a filesystem Loader, but one can easily add more
+configuration Loaders by implementing the Loader interface (PRs welcome!). The following code
+snippet is an example of usage:
+
+```java
+// Step 1: specify a configuration loader
+URL url = Thread.currentThread().getContextClassLoader().getResource("my/config/path");
+Loader loader =  FileSystemLoader(new File(url.getPath()));
+
+// Step 2: Load the configuration
+Configuration configuration = Configuration.load(loader);
+
+// Optionally, one can pass a fixed context that should never change
+// (e.g. deployment environment)
+Map<String, String> fixedContext = new HashMap<>();
+fixedContext.put("deployment", "development");
+configuration = Configuration.load(loader, fixedContext);
+
+// Step 3: Project a configuration using a context
+Map<String, String> context = new HashMap<>();
+fixedContext.put("user_type", "premium");
+Configuration.Projection projection = configuration.project(context);
+
+// Step 4: Load values (there are several type acessors)
+projection.getBoolean("feature_x.enabled") // true
+```
+
+Please check out the unit tests for more comprehensive use cases.
 
 ## License
 
