@@ -5,6 +5,8 @@ resource files describing a variety of values.  The library allows applications
 to configure themselves based on multiple dimensions describing locations,
 languages, environments, etc.
 
+This is a Java port of the [Javascript YCB library](https://github.com/yahoo/ycb).
+
 ## Overview
 
 YCB allows applications to specify configurations that change in response to
