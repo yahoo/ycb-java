@@ -148,7 +148,7 @@ Using YCB involves four steps:
  3. Projecting a context to get the final configuration.
  4. Get values from configuration entries.
 
-Tipically, steps 1 and 2 are executed only once in an application, and step 3 can be executed one or more times
+Typically, steps 1 and 2 are executed only once in an application, and step 3 can be executed one or more times
 (_i.e._ in a context of a HTTP request), and step 4 is certainly used several times to actually get the values.
 
 Currently the only Loader implemented is a filesystem Loader, but one can easily add more
