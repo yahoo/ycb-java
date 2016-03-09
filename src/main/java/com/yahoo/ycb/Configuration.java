@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -110,11 +109,9 @@ public class Configuration {
     }
 
     private static String contextToString(final Map<String, String> context) {
-        return StringUtils.join(
-                context.keySet().stream().sorted()
-                        .map(key -> key + "=" + context.get(key)
-                        ).collect(Collectors.toList()),
-                "&");
+        return context.entrySet().stream().sorted()
+                .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .collect(Collectors.joining("&"));
     }
 
     /**
