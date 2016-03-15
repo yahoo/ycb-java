@@ -109,8 +109,9 @@ public class Configuration {
     }
 
     private static String contextToString(final Map<String, String> context) {
-        return context.entrySet().stream().sorted()
+        return context.entrySet().stream()
                 .map(entry -> entry.getKey() + "=" + entry.getValue())
+                .sorted()
                 .collect(Collectors.joining("&"));
     }
 
