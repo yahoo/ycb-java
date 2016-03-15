@@ -5,9 +5,10 @@
 
 package com.yahoo.ycb;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A Loader is a Configuration Source.
