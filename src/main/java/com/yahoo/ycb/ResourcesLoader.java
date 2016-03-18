@@ -27,7 +27,7 @@ public class ResourcesLoader implements Loader {
     public List<Dimension> getDimensions() throws IOException {
         final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-        final JsonNode node = mapper.readTree(Thread.currentThread().getContextClassLoader().getResourceAsStream(dimensions));
+        final JsonNode node = mapper.readTree(getClassLoader().getResourceAsStream(dimensions));
 
         return LoadUtils.parseDimensions(node);
     }
@@ -43,7 +43,7 @@ public class ResourcesLoader implements Loader {
 
     private InputStream getConfigInputStream() {
         InputStream result = new ByteArrayInputStream(new byte[]{});
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = getClassLoader();
 
         for (String configResource : configResources) {
             result = new SequenceInputStream(
@@ -54,5 +54,9 @@ public class ResourcesLoader implements Loader {
                             loader.getResourceAsStream((configResource))));
         }
         return result;
+    }
+
+    private ClassLoader getClassLoader() {
+        return getClass().getClassLoader();
     }
 }
