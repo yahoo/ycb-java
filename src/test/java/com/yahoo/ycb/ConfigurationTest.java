@@ -115,6 +115,30 @@ public class ConfigurationTest {
         assertEquals("www.example-bucket_006-dev.com", projection.getText("service_x.api_config.endpoint"));
     }
 
+
+    @Test
+    public void testTotalFixedContext() throws IOException {
+        Loader loader = getLoader("example1");
+
+        Map<String, String> fixedContext = new HashMap<>();
+        fixedContext.put("environment", "dev");
+        fixedContext.put("bucket", "BUCKET_002");
+        fixedContext.put("network", "internal");
+        fixedContext.put("user_type", "premium");
+        fixedContext.put("locale", "en-US");
+
+        Configuration configuration = Configuration.load(loader, fixedContext);
+
+        HashMap<String, String> context = new HashMap<>();
+
+        Configuration.Projection projection = configuration.project(context);
+
+        assertEquals("www.service_y.com", projection.getText("service_y.hostname"));
+        assertEquals("no", projection.getText("service_y.modules.generic"));
+        assertEquals("GET", projection.getText("routes.main_route.method"));
+        assertEquals("www.example-dev.com", projection.getText("service_x.api_config.endpoint"));
+    }
+
     @Test
     public void testDifferentPathSeparator() throws IOException {
         Loader loader = getLoader("example1");
