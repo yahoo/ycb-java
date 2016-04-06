@@ -32,7 +32,17 @@ abstract class LookupTree {
      * @return The Lookup Tree
      */
     public static LookupTree create(final List<Dimension> dimensions, Set<Bundle> bundles, final Map<String, String> fixedContext) {
-        final LookupTree node = new InnerNode();
+        // drop dimensions present in the fixed context (so we have a shallower tree).
+        final List<Dimension> actualDimensions = new ArrayList<>();
+        dimensions.forEach(
+                dimension -> {
+                    if (!fixedContext.containsKey(dimension.getName())) {
+                        actualDimensions.add(dimension);
+                    }
+                });
+
+        // if the dimensions are empty, create a leaf node
+        final LookupTree node = actualDimensions.isEmpty() ? new LeafNode() : new InnerNode();
 
         bundles.stream()
                 // make sure we are inserting in the correct order (more generic first, more specific after).
@@ -42,16 +52,6 @@ abstract class LookupTree {
                         // only insert bundles which are compatible with fixed context
                 .filter(bundle -> fixedContextMatch(dimensions, fixedContext, bundle.getContext()))
                 .forEach(bundle -> {
-
-                    // drop dimensions present in the fixed context (so we have a shallower tree).
-                    final List<Dimension> actualDimensions = new ArrayList<>();
-                    dimensions.forEach(
-                            dimension -> {
-                                if (!fixedContext.containsKey(dimension.getName())) {
-                                    actualDimensions.add(dimension);
-                                }
-                            });
-
                     // insert (with drop dimensions) the bundle in the tree node
                     node.insert(actualDimensions, bundle.getContext(), bundle.getDelta());
                 });
