@@ -11,11 +11,25 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class InnerNode extends LookupTree {
 
     private Dimension dimension;
     private final Map<String, LookupTree> edges = new HashMap<>();
+
+    /**
+     * @return A list of leaf children of this Node
+     */
+    @Override
+    protected List<PathLeaf> traverse() {
+        return edges.entrySet().stream()
+                .flatMap(entry -> entry.getValue().traverse().stream()
+                        .map(pathLeaf -> new PathLeaf(pathLeaf, entry.getKey())))
+                .collect(Collectors.toList());
+    }
 
     @Override
     public JsonNode project(Map<String, String> context, String[] path) {

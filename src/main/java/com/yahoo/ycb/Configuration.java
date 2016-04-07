@@ -41,6 +41,15 @@ public class Configuration {
     }
 
     /**
+     * Perform some validations in the configuration
+     *
+     * @return A List of errors in the configuration, empty list for no errors
+     */
+    public List<ValidationError> validate() {
+        return tree.validate();
+    }
+
+    /**
      * Construct the configuration given a Loader.
      *
      * @param loader The loader is responsible for providing the raw configuration values from somewhere

@@ -1,0 +1,30 @@
+# Copyright 2016 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: {}
+
+  maestro:
+
+    enable_stack_traces: true
+    enable_debug:        true
+
+    enable_super_new_api: true
+
+
+- settings: {network: external, environment: production}
+
+  maestro:
+    enable_stack_traces: false
+    enable_debug:        false
+
+    # property not defined in master!
+    enabled_xx:          true
+
+
+- settings: {environment: production}
+
+  maestro:
+    enable_super_new_api: false
+
+    # different types!
+    enable_debug:         20

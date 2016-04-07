@@ -8,11 +8,13 @@ package com.yahoo.ycb;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 abstract class LookupTree {
 
@@ -71,39 +73,150 @@ abstract class LookupTree {
                 .allMatch(entry -> dimensionAncestries.get(entry.getKey()).contains(entry.getValue()));
     }
 
-    static JsonNode mergeDelta(JsonNode delta1, JsonNode delta2) {
+
+    static JsonNode mergeDelta(JsonNode delta1, JsonNode delta2) throws ValidationException  {
+        return mergeDelta(delta1, delta2, false);
+    }
+
+    static JsonNode mergeDelta(JsonNode delta1, JsonNode delta2, boolean strictMode) throws ValidationException  {
+        return mergeDelta(delta1, delta2, strictMode, Collections.emptyList());
+    }
+
+    /**
+     * @param delta1 Json 1
+     * @param delta2 Json 2
+     * @param strictMode If true, will throw an exception if a key exists in Json 2 but not Json 1
+     * @return Merged Json
+     */
+    static JsonNode mergeDelta(JsonNode delta1, JsonNode delta2, boolean strictMode, List<String> path) throws ValidationException {
         if (delta2 == null || delta2.isNull()) {
             return delta1;
         } else if (delta1 != null && delta1.isObject() && delta2.isObject()) {
+            // delta 1 and delta 2 are objects
+
             final ObjectNode result = new ObjectNode(JsonNodeFactory.instance);
-            Iterator<Map.Entry<String, JsonNode>> fields = delta1.fields();
-            while (fields.hasNext()) {
+            for (final Iterator<Map.Entry<String, JsonNode>> fields = delta1.fields(); fields.hasNext();) {
                 final Map.Entry<String, JsonNode> field = fields.next();
 
                 if (delta2.has(field.getKey())) {
-                    result.set(field.getKey(), mergeDelta(field.getValue(), delta2.get(field.getKey())));
+                    final List<String> newPath = new ArrayList<>();
+                    newPath.addAll(path);
+                    newPath.add(field.getKey());
+
+                    result.set(field.getKey(), mergeDelta(field.getValue(), delta2.get(field.getKey()), strictMode, newPath));
                 } else {
                     result.set(field.getKey(), field.getValue());
                 }
             }
-            fields = delta2.fields();
-            while (fields.hasNext()) {
+            for (final Iterator<Map.Entry<String, JsonNode>> fields = delta2.fields(); fields.hasNext();) {
                 final Map.Entry<String, JsonNode> field = fields.next();
 
                 if (!result.has(field.getKey())) {
+                    final List<String> newPath = new ArrayList<>();
+                    newPath.addAll(path);
+                    newPath.add(field.getKey());
+
+                    if (strictMode) {
+                        throw new ValidationException(newPath, ValidationError.Reason.MISSING_MASTER_PROPERTY);
+                    }
+
                     result.set(field.getKey(), field.getValue());
                 }
             }
 
             return result;
         } else {
+            // delta 1 and delta 2 are not objects
+
+            if (strictMode && delta1 != null && !delta2.isNull() && delta1.getClass() != delta2.getClass()) {
+                // delta 1 and delta 2 classes are different, and delta2 is not json null (json null is allowed to inhabit any type)
+                throw new ValidationException(path, ValidationError.Reason.REPLACING_DIFFERENT_TYPES);
+            }
+
             return delta2;
         }
     }
 
+    /**
+     * @return A list of leaf children of this Node
+     */
+    protected abstract List<PathLeaf> traverse();
+
     public abstract JsonNode project(Map<String, String> context, String[] path);
 
     protected abstract void insert(List<Dimension> dimensions, Map<String, String> context, JsonNode delta);
+
+    public List<ValidationError> validate() {
+        final List<PathLeaf> pathLeafs = traverse();
+
+        // find the "Master" delta
+        final JsonNode masterDelta = pathLeafs.stream()
+                .filter(p -> p.contextValues.stream().allMatch(v -> v.equals(ANY_VALUE)))
+                .map(PathLeaf::getDelta)
+                .findFirst()
+                .orElse(NullNode.getInstance());
+
+        // iterate over all "non-root" deltas
+        return pathLeafs.stream()
+                .filter(p -> p.contextValues.stream().anyMatch(v -> !v.equals(ANY_VALUE)))
+                .flatMap(p -> {
+                    try {
+                        mergeDelta(masterDelta, p.getDelta(), true);
+                        return Stream.empty();
+                    } catch (ValidationException e) {
+                        return Stream.of( new ValidationError(e.getPath(), e.getReason(), p.getContextValues()) );
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    protected static class ValidationException extends RuntimeException {
+        private final List<String> path;
+        private final ValidationError.Reason reason;
+
+
+        public ValidationException(List<String> path, ValidationError.Reason reason) {
+            this.path = path;
+            this.reason = reason;
+        }
+
+        public List<String> getPath() {
+            return path;
+        }
+
+        public ValidationError.Reason getReason() {
+            return reason;
+        }
+    }
+
+    /**
+     * Represents a key from the root to the leaf
+     */
+    protected static class PathLeaf {
+        private final List<String> contextValues;
+        private final JsonNode delta;
+
+        public PathLeaf(JsonNode delta) {
+            contextValues = Collections.emptyList();
+            this.delta = delta;
+        }
+
+        public PathLeaf(PathLeaf child, String contextValue) {
+            contextValues = new ArrayList<>();
+            contextValues.addAll(child.getContextValues());
+            contextValues.add(contextValue);
+
+            delta = child.delta;
+        }
+
+        public List<String> getContextValues() {
+            return contextValues;
+        }
+
+        public JsonNode getDelta() {
+            return delta;
+        }
+    }
 
     /**
      * Compare two contexts (given dimensions) based on which is more generic (lower) and more specific (bigger).

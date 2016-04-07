@@ -7,13 +7,21 @@ package com.yahoo.ycb;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class LeafNode extends LookupTree {
 
     private JsonNode delta;
+
+    /**
+     * @return A list of leaf children of this Node
+     */
+    @Override
+    protected List<PathLeaf> traverse() {
+        return Collections.singletonList(new PathLeaf(delta));
+    }
 
     @Override
     public JsonNode project(Map<String, String> context, String[] path) {
