@@ -8,6 +8,7 @@ package com.yahoo.ycb;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.ImmutableMap;
 import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
@@ -29,11 +30,15 @@ public class Configuration {
     private String pathSeparator = "\\.";
 
     private final LookupTree tree;
-    private final ConcurrentMap<String, Projection> projectionCache = new ConcurrentLinkedHashMap.Builder<String, Projection>()
+
+    // Cache from context string to value cache
+    private final ConcurrentMap<String, ConcurrentMap<String, JsonNode>> projectionCache = new ConcurrentLinkedHashMap.Builder<String, ConcurrentMap<String, JsonNode>>()
             .maximumWeightedCapacity(PROJECTION_CACHE_CAPACITY)
             .build();
 
     private final Map<String, String> fixedContext;
+
+    private final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
     private Configuration(LookupTree tree, Map<String, String> fixedContext) {
         this.tree = tree;
@@ -76,16 +81,21 @@ public class Configuration {
      * Get the projection of the configuration given a context.
      *
      * @param context A map from dimension name to value, omitted dimensions are implicitly "any"
+     * @param allowSystemPropertyOverride if true, properties in System Properties take priority if defined
+     * @return The projected configuration from the context
+     */
+    public Projection project(Map<String, String> context, boolean allowSystemPropertyOverride) {
+        return new Projection(context, allowSystemPropertyOverride);
+    }
+
+    /**
+     * Get the projection of the configuration given a context. Does not allow System properties override.
+     *
+     * @param context A map from dimension name to value, omitted dimensions are implicitly "any"
      * @return The projected configuration from the context
      */
     public Projection project(Map<String, String> context) {
-        final String key = contextToString(context);
-        Projection projection = projectionCache.get(key);
-        if (projection == null) {
-            projection = new Projection(context);
-            projectionCache.put(key, projection);
-        }
-        return projection;
+        return project(context, false);
     }
 
     /**
@@ -143,17 +153,44 @@ public class Configuration {
      */
     public class Projection {
 
-        private final ConcurrentMap<String, JsonNode> valueCache = new ConcurrentLinkedHashMap.Builder<String, JsonNode>()
-                .maximumWeightedCapacity(VALUE_CACHE_CAPACITY)
-                .build();
+        private ConcurrentMap<String, JsonNode> valueCache;
 
-        final private Map<String, String> context;
+        private final Map<String, String> context;
+        private final boolean allowSystemPropertyOverride;
 
-        private Projection(Map<String, String> context) {
+        /**
+         * Create a new projection of the configuration
+         *
+         * @param context the configuration context
+         * @param allowSystemPropertyOverride Whether the System properties take priority
+         */
+        private Projection(Map<String, String> context, boolean allowSystemPropertyOverride) {
             this.context = context;
+            this.allowSystemPropertyOverride = allowSystemPropertyOverride;
+
+            final String key = contextToString(context);
+            valueCache = projectionCache.get(key);
+            if (valueCache == null) {
+                valueCache = new ConcurrentLinkedHashMap.Builder<String, JsonNode>()
+                        .maximumWeightedCapacity(VALUE_CACHE_CAPACITY)
+                        .build();
+                projectionCache.put(key, valueCache);
+            }
         }
 
         public JsonNode getJson(String path) {
+            if (allowSystemPropertyOverride) {
+                String prop = System.getProperty(path);
+                if (prop != null) {
+                    // parse property to JSON using YAML parsing
+                    try {
+                        return mapper.readTree(prop);
+                    } catch (IOException e) {
+                        // DO nothing... continue to load from config
+                    }
+                }
+            }
+
             JsonNode value = valueCache.get(path);
             if (value == null) {
                 value = tree.project(context, path.split(pathSeparator));

@@ -180,6 +180,13 @@ projection.getBoolean("feature_x.enabled") // true
 
 Please check out the unit tests for more comprehensive use cases.
 
+## System Property Override
+
+The project API accepts a flag in which that the configuration can be override by JVM System
+properties. That feature is useful if one wants to override specific configuration properties
+in a particular running instance of the application, by simply setting properties in the java
+command line (like `java -Dmyapp.foo.bar=10`).
+
 ## License
 
 Code licensed under the BSD license.  See LICENSE file for terms.
