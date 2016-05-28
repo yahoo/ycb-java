@@ -14,16 +14,9 @@ import java.net.URL;
 
 public class LookupTreeTest {
 
-    private static Loader getLoader(String name) {
-        final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
-        assert url != null;
-
-        return new FileSystemLoader(new File(url.getPath()));
-    }
-
     @Test
     public void testUnknownDimension() throws IOException {
-        Loader loader = getLoader("unknownDimension");
+        Loader loader = TestUtils.getLoader("unknownDimension");
 
         try {
             Configuration.load(loader);
@@ -34,7 +27,7 @@ public class LookupTreeTest {
 
     @Test
     public void testInvalidValue() throws IOException {
-        Loader loader = getLoader("invalidDimension");
+        Loader loader = TestUtils.getLoader("invalidDimension");
 
         try {
             Configuration.load(loader);

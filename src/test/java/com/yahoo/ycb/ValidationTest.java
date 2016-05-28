@@ -15,17 +15,9 @@ import static junit.framework.Assert.*;
 
 public class ValidationTest {
 
-
-    private static Loader getLoader(String name) {
-        final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
-        assert url != null;
-
-        return new FileSystemLoader(new File(url.getPath()));
-    }
-
     @Test
     public void testIsValid() throws IOException {
-        Loader loader = getLoader("example2");
+        Loader loader = TestUtils.getLoader("example2");
 
         Configuration configuration = Configuration.load(loader);
 
@@ -37,7 +29,7 @@ public class ValidationTest {
 
     @Test
     public void testIsNotValid() throws IOException {
-        Loader loader = getLoader("example3");
+        Loader loader = TestUtils.getLoader("example3");
 
         Configuration configuration = Configuration.load(loader);
 
