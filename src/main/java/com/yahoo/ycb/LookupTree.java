@@ -34,6 +34,8 @@ abstract class LookupTree {
      * @return The Lookup Tree
      */
     public static LookupTree create(final List<Dimension> dimensions, Set<Bundle> bundles, final Map<String, String> fixedContext) {
+        validateBundles(dimensions, bundles);
+
         // drop dimensions present in the fixed context (so we have a shallower tree).
         final List<Dimension> actualDimensions = new ArrayList<>();
         dimensions.forEach(
@@ -59,6 +61,22 @@ abstract class LookupTree {
                 });
 
         return node;
+    }
+
+    private static void validateBundles(final List<Dimension> dimensions, final Set<Bundle> bundles) {
+        final Map<String, List<String>> dimensionValues = dimensions.stream()
+            .collect(Collectors.toMap(Dimension::getName, Dimension::traverse));
+
+        bundles.forEach(bundle ->
+            bundle.getContext().forEach((dimension, value) -> {
+                if (!dimensionValues.containsKey(dimension)) {
+                    throw new IllegalArgumentException("Unknown dimension: " + dimension);
+                }
+                if (!dimensionValues.get(dimension).contains(value)) {
+                    throw new IllegalArgumentException("Invalid value for dimension: " + dimension + " -> " + value);
+                }
+            })
+        );
     }
 
     private static boolean fixedContextMatch(List<Dimension> dimensions, final Map<String, String> fixedContext, Map<String, String> bundleContext) {

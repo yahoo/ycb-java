@@ -1,0 +1,15 @@
+# Copyright 2016 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- settings: {}
+
+  enable_super_new_api: false
+
+- settings: {environment: production}
+
+  enable_super_new_api: false
+
+# cluster dimension was not defined.
+- settings: {environment: production, cluster: west}
+
+  enable_super_new_api: true
