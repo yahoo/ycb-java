@@ -18,16 +18,9 @@ import static org.junit.Assert.*;
 
 public class ConfigurationTest {
 
-    private static Loader getLoader(String name) {
-        final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
-        assert url != null;
-
-        return new FileSystemLoader(new File(url.getPath()));
-    }
-
     @Test
     public void testConfiguration() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Configuration configuration = Configuration.load(loader);
 
@@ -85,7 +78,7 @@ public class ConfigurationTest {
 
     @Test
     public void testFixedContext() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Map<String, String> fixedContext = new HashMap<>();
         fixedContext.put("environment", "dev");
@@ -118,7 +111,7 @@ public class ConfigurationTest {
 
     @Test
     public void testTotalFixedContext() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Map<String, String> fixedContext = new HashMap<>();
         fixedContext.put("environment", "dev");
@@ -141,7 +134,7 @@ public class ConfigurationTest {
 
     @Test
     public void testDifferentPathSeparator() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Configuration configuration = Configuration.load(loader);
         configuration.setPathSeparator("\\/");
@@ -163,7 +156,7 @@ public class ConfigurationTest {
 
     @Test
     public void testGetList() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Configuration configuration = Configuration.load(loader);
 
@@ -185,7 +178,7 @@ public class ConfigurationTest {
 
     @Test
     public void testGetObject() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Configuration configuration = Configuration.load(loader);
 
@@ -204,7 +197,7 @@ public class ConfigurationTest {
 
     @Test
     public void testGetSimpleTypes() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Configuration configuration = Configuration.load(loader);
 
@@ -220,7 +213,7 @@ public class ConfigurationTest {
 
     @Test
     public void testTraverseContext() throws IOException {
-        Loader loader = getLoader("example2");
+        Loader loader = TestUtils.getLoader("example2");
 
         Configuration configuration = Configuration.load(loader);
 

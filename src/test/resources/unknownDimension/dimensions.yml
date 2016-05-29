@@ -1,0 +1,8 @@
+# Copyright 2016 Yahoo inc.
+# Licensed under the terms of the BSD License. Please see LICENSE file in the project home directory for terms.
+
+- dimensions:
+    -
+        environment:
+           stage:
+           production:

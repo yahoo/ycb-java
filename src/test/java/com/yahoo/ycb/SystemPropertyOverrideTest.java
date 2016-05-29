@@ -19,14 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 public class SystemPropertyOverrideTest {
 
-
-    private static Loader getLoader(String name) {
-        final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
-        assert url != null;
-
-        return new FileSystemLoader(new File(url.getPath()));
-    }
-
     @Before
     public void setUp() throws Exception {
         System.clearProperty("routes.main_route.method");
@@ -35,7 +27,7 @@ public class SystemPropertyOverrideTest {
 
     @Test
     public void testDontOverride() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Map<String, String> fixedContext = new HashMap<>();
         fixedContext.put("environment", "dev");
@@ -59,7 +51,7 @@ public class SystemPropertyOverrideTest {
 
     @Test
     public void testMustOverride() throws IOException {
-        Loader loader = getLoader("example1");
+        Loader loader = TestUtils.getLoader("example1");
 
         Map<String, String> fixedContext = new HashMap<>();
         fixedContext.put("environment", "dev");
