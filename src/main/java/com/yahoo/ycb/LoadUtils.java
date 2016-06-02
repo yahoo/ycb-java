@@ -15,6 +15,9 @@ import java.util.*;
 
 class LoadUtils {
 
+    private LoadUtils() {
+    }
+
     protected static List<Dimension> parseDimensions(JsonNode node) throws IOException {
         if (!node.isArray()) {
             throw new IOException("Expecting array.");
