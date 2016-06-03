@@ -9,6 +9,9 @@ import java.io.File;
 import java.net.URL;
 
 public class TestUtils {
+    private TestUtils() {
+    }
+
     public static Loader getLoader(String name) {
         final URL url = Thread.currentThread().getContextClassLoader().getResource(name);
         assert url != null;
