@@ -31,7 +31,7 @@ include:
 Each of these dimensions has a name (like  "Language"), and a set of possible
 values ("en-US", "es-ES", "pt-BR"). Also, dimensions can be immutable per
 application instance (like "Deployment"), or change dynamically
-at at different context (like "Device" in a HTTP request).
+at at different context (like "Device" in an HTTP request).
 
 A _realization_ of a set of dimensions is called "context", _e.g._ of a context
 for the previous dimensions specification can be something like:
@@ -171,7 +171,7 @@ configuration = Configuration.load(loader, fixedContext);
 
 // Step 3: Project a configuration using a context
 Map<String, String> context = new HashMap<>();
-fixedContext.put("user_type", "premium");
+context.put("user_type", "premium");
 Configuration.Projection projection = configuration.project(context);
 
 // Step 4: Load values (there are several type acessors)
