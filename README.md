@@ -1,4 +1,3 @@
-**Please Note**: This project is no longer maintained, and contains known security vulnerabilities. Use at your own risk!
 # YCB
 
 [![Build Status](https://travis-ci.org/yahoo/ycb-java.svg?branch=master)](https://travis-ci.org/yahoo/ycb-java)
