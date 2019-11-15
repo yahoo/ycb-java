@@ -78,7 +78,7 @@
     </dependencies>
 
     <properties>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.10.1</jackson.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 </project>
