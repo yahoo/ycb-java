@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * Represents one Dimension in the configuration system: an association
  * between a dimension name, and the tree of values this dimension can
- * be (i.e. the possible values for that this dimension name can assume
+ * be (i.e. the possible values that this dimension name can assume
  * in contexts).
  */
 public class Dimension {
