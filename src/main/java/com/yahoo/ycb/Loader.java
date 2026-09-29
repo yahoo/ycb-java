@@ -14,7 +14,7 @@ import java.util.*;
  * A Loader is a Configuration Source.
  * <p>
  * A Configuration comprises of two parts: dimensions, which specify how contexts should be structured; and
- * Bundles, which in turns are associations of contexts with a configuration Delta.
+ * Bundles, which in turn are associations of contexts with a configuration Delta.
  */
 public interface Loader {
 
